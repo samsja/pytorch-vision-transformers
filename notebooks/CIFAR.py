@@ -38,7 +38,7 @@ from vision_transformers.utils_plot import imshow
 
 # ## Dataset
 
-## PARAM
+## PARAMS
 batch_size = 256
 num_workers = 8
 patience = 10
