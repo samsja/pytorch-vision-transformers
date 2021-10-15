@@ -63,17 +63,17 @@ def positional_embedding(dim: int):
 
 
 class MHSAttention(nn.Module):
-    def __init__(self, dim: int, num_heads: int):
+    def __init__(self, dim: int, heads: int):
         super().__init__()
 
-        self.heads = num_heads
+        self.heads = heads
 
-        if dim % num_heads != 0:
+        if dim % heads != 0:
             raise DimError(
-                f" input dim {dim} is not compatible with {num_heads} attention heads "
+                f" input dim {dim} is not compatible with {heads} attention heads "
             )
 
-        self.dim_heads = dim // num_heads
+        self.dim_heads = dim // heads
         self.qkv = nn.Linear(dim, 3 * self.dim_heads * self.heads)
         self.linear_out = (
             nn.Linear(self.dim_heads * self.heads, dim)
@@ -98,3 +98,44 @@ class MHSAttention(nn.Module):
         SA = self.linear_out(MSA)
 
         return SA
+
+
+class EncoderBlock(nn.Module):
+    def __init__(self, dim: int, heads=8):
+        super().__init__()
+
+        self.layernorm = nn.LayerNorm(dim)
+        self.attention = MHSAttention(dim, heads)
+
+        self.mlp = nn.Sequential(
+            nn.Linear(dim, dim), nn.ReLU(), nn.Linear(dim, dim), nn.ReLU()
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        residual = x
+        out = self.layernorm(x)
+        out = self.attention(out)
+        out += residual
+
+        residual = out
+        out = self.layernorm(out)
+        out = self.mlp(out)
+
+        out += residual
+
+        return out
+
+
+class Encoder(nn.Module):
+    def __init__(self, dim: int, length: int, heads=8):
+        super().__init__()
+
+        create_encoder_block = lambda: EncoderBlock(dim, heads)
+
+        self.encoder_blocks = nn.Sequential(
+            *(create_encoder_block() for _ in range(length))
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+
+        return self.encoder_blocks(x)
