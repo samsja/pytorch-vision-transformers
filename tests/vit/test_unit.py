@@ -8,8 +8,26 @@ from vision_transformers.vit import (
     MHSAttention,
     PatchSizeError,
     Transformers,
+    ViT,
     positional_embedding,
 )
+
+
+@torch.no_grad()
+def test_vit_shape():
+
+    model = ViT(
+        num_classes=10,
+        dim=512,
+        length=2,
+        heads=8,
+        size_of_patch=14,
+        input_shape=(28, 28),
+    )
+
+    imgs = torch.zeros(2, 3, 28, 28)
+
+    assert model(imgs).shape == (2, 10)
 
 
 @torch.no_grad()
@@ -30,6 +48,17 @@ def test_embedded_shape():
     patches = em_patch(input_)
 
     assert patches.shape == (2, 4, 512)
+
+
+@torch.no_grad()
+def test_embedded_number_of_patch():
+
+    input_ = torch.zeros((2, 3, 28, 28))
+    em_patch = EmbeddedPatch(14, (28, 28), dim=512)
+    patches = em_patch(input_)
+
+    assert em_patch.number_of_patch == 4
+    assert patches.shape[1] == em_patch.number_of_patch
 
 
 @torch.no_grad()

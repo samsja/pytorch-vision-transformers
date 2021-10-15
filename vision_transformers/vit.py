@@ -6,6 +6,30 @@ import torch.nn as nn
 from einops import rearrange
 
 
+class ViT(nn.Module):
+    def __init__(
+        self,
+        num_classes: int,
+        dim: int,
+        length: int,
+        heads: int,
+        size_of_patch: int,
+        input_shape: Tuple[int, int],
+        channels: int = 3,
+    ):
+        super().__init__()
+
+        self.to_patch = EmbeddedPatch(size_of_patch, input_shape, dim, channels)
+        self.transformers = Transformers(
+            num_classes, self.to_patch.number_of_patch, dim, length, heads
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+
+        patches = self.to_patch(x)
+        return self.transformers(patches)
+
+
 class VitError(ValueError):
     pass
 
@@ -35,6 +59,8 @@ class EmbeddedPatch(nn.Module):
         self.dim = dim
 
         self.linear = nn.Linear(channels * self.P * self.P, dim)
+
+        self.number_of_patch = (input_shape[0] // self.P) * (input_shape[1] // self.P)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor():
         x = rearrange(
