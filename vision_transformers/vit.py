@@ -67,7 +67,7 @@ class EmbeddedPatch(nn.Module):
             x, " n c (h p1) (w p2) -> n (h w) (p1 p2 c)", p2=self.P, p1=self.P
         )
         x = self.linear(x)
-        pos_em = positional_embedding(self.dim)
+        pos_em = positional_embedding(self.dim).type_as(x)
         return x + pos_em
 
 

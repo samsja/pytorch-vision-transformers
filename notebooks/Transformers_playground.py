@@ -17,18 +17,25 @@
 
 # ## Import
 
+# +
 import torch
 import torch.nn as nn
 
 torch.__version__
+# -
 
+# +
 import os
 
+from einops import rearrange
+
 os.chdir("..")
+# -
 
 from vision_transformers.cifar import CIFARDataModule
+from vision_transformers.resnet import ResNet
 from vision_transformers.utils_plot import imshow
-from vision_transformers.vit import EmbeddedPatch
+from vision_transformers.vit import EmbeddedPatch, ViT
 
 # ## Dataset
 
@@ -41,6 +48,6 @@ imshow(data.train_dataset[0][0])
 batch = torch.stack([data.train_dataset[0][0], data.train_dataset[1][0]])
 batch.shape
 
-em_patch = EmbeddedPatch(14, (28, 28))
-
-em_patch(batch).shape
+model = ViT(
+    num_classes=10, dim=128, length=12, heads=8, size_of_patch=4, input_shape=(28, 28)
+)

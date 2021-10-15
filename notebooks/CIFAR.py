@@ -33,8 +33,8 @@ import os
 os.chdir("..")
 
 from vision_transformers.cifar import CIFARDataModule
-from vision_transformers.resnet import ResNetModule
 from vision_transformers.utils_plot import imshow
+from vision_transformers.vit_cifar import ViTModule
 
 # ## Dataset
 
@@ -42,8 +42,8 @@ from vision_transformers.utils_plot import imshow
 batch_size = 256
 num_workers = 8
 patience = 10
-model_path = "data/models"
-epochs = 30
+model_path = "data/models/vit"
+epochs = 200
 
 data = CIFARDataModule("data", batch_size, num_workers)
 
@@ -51,11 +51,7 @@ data.setup()
 
 imshow(data.train_dataset[0][0])
 
-data.train_dataset[0][0].shape == (3, 28, 28)
-
-data.val_dataset[0][0].shape
-
-model = ResNetModule(10, 1e-3)
+model = ViTModule(10, 1e-3)
 
 callbacks = [
     # EarlyStopping(
