@@ -1,12 +1,21 @@
 import pytest
 import torch
 
-from vision_transformers.vit import EmbeddedPatch, MHSAttention, positional_embedding
+from vision_transformers.vit import (
+    EmbeddedPatch,
+    MHSAttention,
+    PatchSizeError,
+    positional_embedding,
+)
 
 
-@pytest.mark.xfail
 def test_patch_size_error():
-    em_patch = EmbeddedPatch(3, (28, 28))
+    try:
+        em_patch = EmbeddedPatch(3, (28, 28), dim=512)
+    except PatchSizeError:
+        assert True
+    else:
+        assert False
 
 
 def test_embedded_shape():
