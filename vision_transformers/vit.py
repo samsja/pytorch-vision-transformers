@@ -139,3 +139,19 @@ class Encoder(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
 
         return self.encoder_blocks(x)
+
+
+class Transformers(nn.Module):
+    def __init__(
+        self, num_classes: int, number_of_patch: int, dim: int, length: int, heads: int
+    ):
+        super().__init__()
+
+        self.encoder = Encoder(dim, length, heads)
+        self.classifier = nn.Linear(dim * number_of_patch, num_classes)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        features = self.encoder(x)
+        features = rearrange(features, " b patches d -> b (patches d)")
+
+        return self.classifier(features)

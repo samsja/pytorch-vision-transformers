@@ -7,10 +7,12 @@ from vision_transformers.vit import (
     EncoderBlock,
     MHSAttention,
     PatchSizeError,
+    Transformers,
     positional_embedding,
 )
 
 
+@torch.no_grad()
 def test_patch_size_error():
     try:
         em_patch = EmbeddedPatch(3, (28, 28), dim=512)
@@ -20,6 +22,7 @@ def test_patch_size_error():
         assert False
 
 
+@torch.no_grad()
 def test_embedded_shape():
 
     input_ = torch.zeros((2, 3, 28, 28))
@@ -29,23 +32,27 @@ def test_embedded_shape():
     assert patches.shape == (2, 4, 512)
 
 
+@torch.no_grad()
 def test_positional_em():
 
     assert positional_embedding(512).shape == (512,)
 
 
+@torch.no_grad()
 def test_SHA():
     attention = MHSAttention(512, 1)
 
     assert attention(torch.zeros(2, 4, 512)).shape == (2, 4, 512)
 
 
+@torch.no_grad()
 def test_MSHA():
 
     attention = MHSAttention(512, 8)
     assert attention(torch.zeros(2, 4, 512)).shape == (2, 4, 512)
 
 
+@torch.no_grad()
 def test_encoder_block():
 
     encoder = EncoderBlock(512)
@@ -54,9 +61,19 @@ def test_encoder_block():
     assert encoder(patch).shape == patch.shape
 
 
+@torch.no_grad()
 def test_encoder():
 
     encoder = Encoder(512, 2)
     patch = torch.zeros(2, 4, 512)
 
     assert encoder(patch).shape == patch.shape
+
+
+@torch.no_grad()
+def test_transformers():
+
+    transformers = Transformers(10, 4, 512, 2, 8)
+    patch = torch.zeros(2, 4, 512)
+
+    assert transformers(patch).shape == (2, 10)
