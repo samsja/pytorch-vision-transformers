@@ -2,15 +2,21 @@ from typing import Tuple
 
 import torch
 import torch.nn as nn
-from einops.layers.torch import Rearrange
+from einops import rearrange
 
 
-class PatchSizeError(ValueError):
+class VitError(ValueError):
+    pass
+
+
+class PatchSizeError(VitError):
     pass
 
 
 class EmbeddedPatch(nn.Module):
-    def __init__(self, size_of_patch: int, input_shape: Tuple[int, int]):
+    def __init__(
+        self, size_of_patch: int, input_shape: Tuple[int, int], channels=3, dim=512
+    ):
         super().__init__()
 
         if (input_shape[0] % size_of_patch != 0) or (
@@ -21,12 +27,31 @@ class EmbeddedPatch(nn.Module):
             )
 
         self.P = size_of_patch
-        self.input_shape = input_shape
-        self.N = (input_shape[0] // self.P) * (input_shape[1] // self.P)
+        self.dim = dim
 
-        self.rearrange = Rearrange(
-            " n c (h p1) (w p2) -> n (h w) c p1 p2", p2=self.P, p1=self.P
-        )
+        self.linear = nn.Linear(channels * self.P * self.P, dim)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor():
-        return self.rearrange(x)
+        x = rearrange(
+            x, " n c (h p1) (w p2) -> n (h w) (p1 p2 c)", p2=self.P, p1=self.P
+        )
+        x = self.linear(x)
+        pos_em = positional_embedding(self.dim)
+        return x + pos_em
+
+
+class DimError(VitError):
+    pass
+
+
+def positional_embedding(dim: int):
+    if dim % 2 != 0:
+        raise DimError(f"dim {dim} should pair")
+
+    d = dim // 2
+
+    w = (10_000 * torch.ones(d)).pow(2 * torch.arange(d) / d)
+    cos = torch.cos(w)
+    sin = torch.sin(w)
+
+    return rearrange([sin, cos], " a b -> (b a) ")
