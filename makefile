@@ -5,6 +5,10 @@ formatting:
 	black vision_transformers/
 	isort vision_transformers/
 
+	black tests/
+	isort tests/
+
+
 notebook-sync:
 	jupytext --sync  notebooks/*.ipynb
 
