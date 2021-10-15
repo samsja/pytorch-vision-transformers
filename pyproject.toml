@@ -8,6 +8,7 @@ authors = ["sami jaghouar <sami.jaghouar@hotmail.fr>"]
 python = "^3.8"
 torch = "^1.9.1"
 torchvision = "^0.10.1"
+einops = "^0.3.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

@@ -1,8 +1,8 @@
-from itertools import product
 from typing import Tuple
 
 import torch
 import torch.nn as nn
+from einops.layers.torch import Rearrange
 
 
 class PatchSizeError(ValueError):
@@ -24,14 +24,9 @@ class EmbeddedPatch(nn.Module):
         self.input_shape = input_shape
         self.N = (input_shape[0] // self.P) * (input_shape[1] // self.P)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor():
-        return torch.stack(
-            [
-                x[:, :, i * self.P : (i + 1) * self.P, j * self.P : (j + 1) * self.P]
-                for i, j in product(
-                    range(0, self.input_shape[0] // self.P),
-                    range(0, self.input_shape[1] // self.P),
-                )
-            ],
-            dim=1,
+        self.rearrange = Rearrange(
+            " n c (h p1) (w p2) -> n (h w) c p1 p2", p2=self.P, p1=self.P
         )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor():
+        return self.rearrange(x)
