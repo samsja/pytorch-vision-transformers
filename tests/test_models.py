@@ -1,7 +1,7 @@
 import torch
 
-from vision_transformers.cifar import _IMAGE_SHAPE
-from vision_transformers.resnet import ResNet
+from vision_transformers.datasets.cifar import _IMAGE_SHAPE
+from vision_transformers.transformers.resnet import ResNet
 
 
 def test_resnet_output_shape():

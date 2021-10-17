@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from vision_transformers.vit import (
+from vision_transformers.transformers.vit.vit import (
     EmbeddedPatch,
     Encoder,
     EncoderBlock,

@@ -32,10 +32,10 @@ from einops import rearrange
 os.chdir("..")
 # -
 
-from vision_transformers.cifar import CIFARDataModule
-from vision_transformers.resnet import ResNet
-from vision_transformers.utils_plot import imshow
-from vision_transformers.vit import EmbeddedPatch, ViT
+from vision_transformers.datasets.cifar import CIFARDataModule
+from vision_transformers.transformers.vit.vit import EmbeddedPatch, ViT
+from vision_transformers.transformers.vit.vit_lightning import ViTModule
+from vision_transformers.utils.utils_plot import imshow
 
 # ## Dataset
 

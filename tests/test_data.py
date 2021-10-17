@@ -1,4 +1,4 @@
-from vision_transformers.cifar import CIFARDataModule
+from vision_transformers.datasets.cifar import CIFARDataModule
 
 
 def test_CIRAR10_shape():

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-from vision_transformers.cifar import _MEAN, _STD
+from vision_transformers.datasets.cifar import _MEAN, _STD
 
 
 def img_from_tensor(inp):

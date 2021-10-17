@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchmetrics
 
-from vision_transformers.vit import ViT
+from vision_transformers.transformers.vit.vit import ViT
 
 
 def TinyViT(num_classes: int) -> ViT:
