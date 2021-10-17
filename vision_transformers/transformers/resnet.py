@@ -5,6 +5,8 @@ import torch.nn.functional as F
 import torchmetrics
 from torchvision.models import resnet18
 
+from vision_transformers.transformers.lightning_module import TransformersModule
+
 
 class ResNet(torch.nn.Module):
     def __init__(self, num_classes: int, pretrained=True):
@@ -16,37 +18,6 @@ class ResNet(torch.nn.Module):
         return self.resnet(x)
 
 
-class ResNetModule(pl.LightningModule):
-    def __init__(self, num_classes: int, lr: float = 1e-3):
-        super().__init__()
-        self.resnet = ResNet(num_classes, pretrained=False)
-        self.lr = lr
-        self.loss_fn = torch.nn.CrossEntropyLoss()
-        self.acc_fn = torchmetrics.Accuracy()
-
-    def forward(self, x):
-        return self.resnet(x)
-
-    def training_step(self, batch, batch_idx):
-        x, y = batch
-        output = self.forward(x)
-        loss = self.loss_fn(output, y)
-        acc = self.acc_fn(output, y)
-
-        self.log("train_loss", loss)
-        self.log("train_acc", acc)
-
-        return loss
-
-    def validation_step(self, batch, batch_idx):
-        x, y = batch
-        output = self.forward(x)
-        loss = self.loss_fn(output, y)
-        acc = self.acc_fn(output, y)
-
-        self.log("val_loss", loss)
-        self.log("val_acc", acc)
-
-    def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
-        return optimizer
+class ResNetModule(TransformersModule):
+    def __init__(self, num_classes: int, lr=1e-3):
+        super().__init__(ResNet(num_classes), lr)

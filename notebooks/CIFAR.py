@@ -45,8 +45,8 @@ from vision_transformers.utils.utils_plot import imshow
 batch_size = 256
 num_workers = 8
 patience = 10
-model_path = "data/models/vit"
-epochs = 200
+model_path = "data/models/conv_mixer"
+epochs = 100
 
 data = CIFARDataModule("data", batch_size, num_workers)
 
@@ -57,12 +57,7 @@ imshow(data.train_dataset[0][0])
 model = ConvMixerModule(10, 1e-3)
 
 callbacks = [
-    # EarlyStopping(
-    #    monitor="val_acc",
-    #    stopping_threshold=0.97,
-    #    patience=patience,
-    #    min_delta=0.0,
-    # ),
+    EarlyStopping(monitor="val_acc", mode="max", patience=patience, strict=False),
     ModelCheckpoint(
         dirpath=model_path,
         monitor="val_acc",
