@@ -4,31 +4,29 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchmetrics
 
-from vision_transformers.transformers.vit.vit import ViT
+from vision_transformers.transformers.conv_mixer.conv_mixer import ConvMixer
 
 
-def TinyViT(num_classes: int) -> ViT:
-    return ViT(
+def TinyConvMixer(num_classes: int) -> ConvMixer:
+    return ConvMixer(
         num_classes=10,
         dim=128,
         depth=12,
-        heads=8,
         patch_size=4,
-        input_shape=(28, 28),
+        kernel_size=7,
     )
 
 
-class ViTModule(pl.LightningModule):
+class ConvMixerModule(pl.LightningModule):
     def __init__(self, num_classes: int, lr: float = 1e-3):
         super().__init__()
-        print(self.device)
-        self.vit = TinyViT(num_classes)
+        self.model = TinyConvMixer(num_classes)
         self.lr = lr
         self.loss_fn = torch.nn.CrossEntropyLoss()
         self.acc_fn = torchmetrics.Accuracy()
 
     def forward(self, x):
-        return self.vit(x)
+        return self.model(x)
 
     def training_step(self, batch, batch_idx):
         x, y = batch

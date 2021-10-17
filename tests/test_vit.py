@@ -19,9 +19,9 @@ def test_vit_shape():
     model = ViT(
         num_classes=10,
         dim=512,
-        length=2,
+        depth=2,
         heads=8,
-        size_of_patch=14,
+        patch_size=14,
         input_shape=(28, 28),
     )
 

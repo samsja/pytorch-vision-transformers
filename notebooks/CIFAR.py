@@ -33,6 +33,9 @@ import os
 os.chdir("..")
 
 from vision_transformers.datasets.cifar import CIFARDataModule
+from vision_transformers.transformers.conv_mixer.conv_mixer_lightning import (
+    ConvMixerModule,
+)
 from vision_transformers.transformers.vit.vit_lightning import ViTModule
 from vision_transformers.utils.utils_plot import imshow
 
@@ -51,7 +54,7 @@ data.setup()
 
 imshow(data.train_dataset[0][0])
 
-model = ViTModule(10, 1e-3)
+model = ConvMixerModule(10, 1e-3)
 
 callbacks = [
     # EarlyStopping(

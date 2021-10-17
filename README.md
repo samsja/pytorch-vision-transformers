@@ -7,6 +7,7 @@ I am currenlty working without a lot of GPU ressources therefore I mainly traine
 Current paper implemented:
 
 * An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale, from [Dosovitskiy et al](https://arxiv.org/abs/2010.11929) (2020)
+* Patch Are All You Need ? [anonymous](https://openreview.net/forum?id=TVHS5Y4dNvM)
 
 Baseline:
 

@@ -11,17 +11,17 @@ class ViT(nn.Module):
         self,
         num_classes: int,
         dim: int,
-        length: int,
+        depth: int,
         heads: int,
-        size_of_patch: int,
+        patch_size: int,
         input_shape: Tuple[int, int],
         channels: int = 3,
     ):
         super().__init__()
 
-        self.to_patch = EmbeddedPatch(size_of_patch, input_shape, dim, channels)
+        self.to_patch = EmbeddedPatch(patch_size, input_shape, dim, channels)
         self.transformers = Transformers(
-            num_classes, self.to_patch.number_of_patch, dim, length, heads
+            num_classes, self.to_patch.number_of_patch, dim, depth, heads
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -41,21 +41,19 @@ class PatchSizeError(VitError):
 class EmbeddedPatch(nn.Module):
     def __init__(
         self,
-        size_of_patch: int,
+        patch_size: int,
         input_shape: Tuple[int, int],
         dim,
         channels=3,
     ):
         super().__init__()
 
-        if (input_shape[0] % size_of_patch != 0) or (
-            input_shape[1] % size_of_patch != 0
-        ):
+        if (input_shape[0] % patch_size != 0) or (input_shape[1] % patch_size != 0):
             raise PatchSizeError(
-                f"size patch of {size_of_patch} is not compatible with image shape {input_shape}"
+                f"size patch of {patch_size} is not compatible with image shape {input_shape}"
             )
 
-        self.P = size_of_patch
+        self.P = patch_size
         self.dim = dim
 
         self.linear = nn.Linear(channels * self.P * self.P, dim)
@@ -153,13 +151,13 @@ class EncoderBlock(nn.Module):
 
 
 class Encoder(nn.Module):
-    def __init__(self, dim: int, length: int, heads=8):
+    def __init__(self, dim: int, depth: int, heads=8):
         super().__init__()
 
         create_encoder_block = lambda: EncoderBlock(dim, heads)
 
         self.encoder_blocks = nn.Sequential(
-            *(create_encoder_block() for _ in range(length))
+            *(create_encoder_block() for _ in range(depth))
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -169,11 +167,11 @@ class Encoder(nn.Module):
 
 class Transformers(nn.Module):
     def __init__(
-        self, num_classes: int, number_of_patch: int, dim: int, length: int, heads: int
+        self, num_classes: int, number_of_patch: int, dim: int, depth: int, heads: int
     ):
         super().__init__()
 
-        self.encoder = Encoder(dim, length, heads)
+        self.encoder = Encoder(dim, depth, heads)
         self.classifier = nn.Linear(dim * number_of_patch, num_classes)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

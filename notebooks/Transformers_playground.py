@@ -33,7 +33,10 @@ os.chdir("..")
 # -
 
 from vision_transformers.datasets.cifar import CIFARDataModule
-from vision_transformers.transformers.vit.vit import EmbeddedPatch, ViT
+from vision_transformers.transformers.conv_mixer.conv_mixer import (
+    ConvMixer,
+    ConvMixerLayer,
+)
 from vision_transformers.transformers.vit.vit_lightning import ViTModule
 from vision_transformers.utils.utils_plot import imshow
 
@@ -48,6 +51,6 @@ imshow(data.train_dataset[0][0])
 batch = torch.stack([data.train_dataset[0][0], data.train_dataset[1][0]])
 batch.shape
 
-model = ViT(
-    num_classes=10, dim=128, length=12, heads=8, size_of_patch=4, input_shape=(28, 28)
-)
+model = ConvMixer(64, 1, 7, 4, 10)
+
+model(batch).shape
