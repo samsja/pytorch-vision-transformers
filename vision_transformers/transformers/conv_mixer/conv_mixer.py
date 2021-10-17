@@ -17,14 +17,10 @@ class ConvMixer(nn.Module):
 
         self.dim = dim
 
+        self.patch_em = EmbeddingPatch(patch_size, dim)
+
         self.layers = nn.Sequential(
             *(ConvMixerLayer(dim, kernel_size) for _ in range(depth))
-        )
-
-        self.patch_em = nn.Sequential(
-            nn.Conv2d(3, dim, kernel_size=patch_size, stride=patch_size),
-            nn.GELU(),
-            nn.BatchNorm2d(dim),
         )
 
         self.classifier = nn.Sequential(
@@ -36,10 +32,22 @@ class ConvMixer(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
 
         out = self.patch_em(x)
-
         out = self.layers(out)
 
         return self.classifier(out)
+
+
+class EmbeddingPatch(nn.Module):
+    def __init__(self, patch_size: int, dim: int):
+        super().__init__()
+        self.conv = nn.Conv2d(3, dim, kernel_size=patch_size, stride=patch_size)
+        self.norm = nn.BatchNorm2d(dim)
+        self.gelu = nn.GELU()
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        out = self.conv(x)
+        out = self.gelu(out)
+        return self.norm(out)
 
 
 class ConvMixerLayer(nn.Module):
