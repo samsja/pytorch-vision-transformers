@@ -5,7 +5,7 @@ description = ""
 authors = ["sami jaghouar <sami.jaghouar@hotmail.fr>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 torch = "^1.9.1"
 torchvision = "^0.10.1"
 einops = "^0.3.2"
