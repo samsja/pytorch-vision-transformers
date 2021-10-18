@@ -7,6 +7,8 @@ import torch
 import torchvision
 from PIL import Image
 from pytorch_lightning.callbacks import Callback
+from timm.data.auto_augment import rand_augment_transform
+from timm.data.transforms import RandomResizedCropAndInterpolation
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
 
@@ -19,11 +21,21 @@ _IMAGE_SHAPE = (30, 30)
 
 def get_transforms(image_shape: Tuple[int, int]) -> Callable:
 
+    tfm = rand_augment_transform(
+        config_str="rand-m9-mstd0.5",
+        hparams={"translate_const": 117, "img_mean": (124, 116, 104)},
+    )
+
+    resize = RandomResizedCropAndInterpolation(size=image_shape)
+
     all_transform = [
-        torchvision.transforms.RandomCrop(_IMAGE_SHAPE),
-        torchvision.transforms.Resize(image_shape),
+        torchvision.transforms.Lambda(lambda x: resize(x)),
+        torchvision.transforms.Lambda(lambda x: tfm(x)),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(mean=_MEAN, std=_STD),
+        torchvision.transforms.RandomErasing(
+            p=0.2, scale=(0.02, 0.15), ratio=(0.3, 3.3), value=0, inplace=True
+        ),
     ]
 
     return torchvision.transforms.Compose(all_transform)

@@ -36,6 +36,13 @@ class TransformersModule(pl.LightningModule):
         self.log("val_loss", loss)
         self.log("val_acc", acc)
 
+    def test_step(self, batch, batch_idx):
+        x, y = batch
+        output = self.forward(x)
+        acc = self.acc_fn(output, y)
+
+        self.log("test_acc", acc)
+
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
         return optimizer
