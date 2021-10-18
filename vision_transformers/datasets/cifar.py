@@ -1,3 +1,4 @@
+import copy
 from typing import Callable, Optional, Tuple
 
 import numpy as np
@@ -11,6 +12,8 @@ from torchvision.datasets import CIFAR10
 
 _MEAN = [0.485, 0.456, 0.406]
 _STD = [0.229, 0.224, 0.225]
+
+_IMAGE_SHAPE_VAL = (32, 32)
 _IMAGE_SHAPE = (30, 30)
 
 
@@ -18,6 +21,17 @@ def get_transforms(image_shape: Tuple[int, int]) -> Callable:
 
     all_transform = [
         torchvision.transforms.RandomCrop(_IMAGE_SHAPE),
+        torchvision.transforms.Resize(image_shape),
+        torchvision.transforms.ToTensor(),
+        torchvision.transforms.Normalize(mean=_MEAN, std=_STD),
+    ]
+
+    return torchvision.transforms.Compose(all_transform)
+
+
+def get_transforms_val(image_shape: Tuple[int, int]) -> Callable:
+
+    all_transform = [
         torchvision.transforms.Resize(image_shape),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(mean=_MEAN, std=_STD),
@@ -46,30 +60,39 @@ class CIFARDataModule(pl.LightningDataModule):
         _VAL_PERCENTAGE = 0.1
 
         try:
-            self.dataset = CIFAR10(
+            self.train_dataset = CIFAR10(
                 self.data_path, transform=get_transforms(_IMAGE_SHAPE), train=True
             )
         except RuntimeError:
-            self.dataset = CIFAR10(
+            self.train_dataset = CIFAR10(
                 self.data_path,
                 transform=get_transforms(_IMAGE_SHAPE),
                 train=True,
                 download=True,
             )
 
-        val_len = int(_VAL_PERCENTAGE * len(self.dataset))
+        self.val_dataset_base = CIFAR10(
+            self.data_path, transform=get_transforms_val(_IMAGE_SHAPE_VAL), train=True
+        )
+
+        val_len = int(_VAL_PERCENTAGE * len(self.train_dataset))
 
         self.train_dataset, self.val_dataset = torch.utils.data.random_split(
-            self.dataset,
+            self.train_dataset,
             [
-                len(self.dataset) - val_len,
+                len(self.train_dataset) - val_len,
                 val_len,
             ],
             generator=torch.Generator().manual_seed(42),
         )
+
+        self.val_dataset.dataset = self.val_dataset_base
+
         try:
             self.test_dataset = CIFAR10(
-                self.data_path, transform=get_transforms(_IMAGE_SHAPE), train=False
+                self.data_path,
+                transform=get_transforms_val(_IMAGE_SHAPE_VAL),
+                train=False,
             )
         except RuntimeError:
             self.test_dataset = CIFAR10(
@@ -129,4 +152,4 @@ class ProgressiveImageResizing(Callback):
             self.log("size", self.new_size[idx])
 
     def _change_size(self, size: int):
-        self.data_module.dataset.transform = get_transforms((size, size))
+        self.data_module.train_dataset.dataset.transform = get_transforms((size, size))

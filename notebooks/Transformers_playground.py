@@ -32,12 +32,13 @@ os.chdir("..")
 # -
 
 from vision_transformers.datasets.cifar import CIFARDataModule
+from vision_transformers.datasets.utils.utils_plot import imshow
 from vision_transformers.transformers.conv_mixer.conv_mixer import (
     ConvMixer,
     ConvMixerLayer,
+    EmbeddingPatch,
 )
 from vision_transformers.transformers.vit.vit_lightning import ViTModule
-from vision_transformers.utils.utils_plot import imshow
 
 # ## Dataset
 
@@ -53,3 +54,7 @@ batch.shape
 model = ConvMixer(64, 1, 7, 4, 10)
 
 model(batch).shape
+
+for p in [1, 2, 3, 4]:
+    em = EmbeddingPatch(p, 256)
+    print(em(batch).shape)
