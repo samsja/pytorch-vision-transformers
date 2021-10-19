@@ -50,15 +50,11 @@ class TransformersModule(pl.LightningModule):
         self.log("test_acc", acc)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
+        optimizer = torch.optim.AdamW(self.model.parameters(), lr=self.lr)
 
         if self.one_cycle_scheduler:
             lr_scheduler = OneCycleLR(optimizer, **self.one_cycle_scheduler)
-            lr_scheduler_config = {
-                "optimizer": optimizer,
-                "scheduler": lr_scheduler,
-                "interval": "step",
-            }
-            return lr_scheduler_config
+
+            return [optimizer], [lr_scheduler]
         else:
             return optimizer

@@ -31,12 +31,12 @@ def get_transforms(image_shape: Tuple[int, int]) -> Callable:
     all_transform = [
         torchvision.transforms.Lambda(lambda x: resize(x)),
         torchvision.transforms.RandomApply(
-            [torchvision.transforms.Lambda(lambda x: tfm(x))], p=0.5
+            [torchvision.transforms.Lambda(lambda x: tfm(x))], p=0.7
         ),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(mean=_MEAN, std=_STD),
         torchvision.transforms.RandomErasing(
-            p=0.1, scale=(0.02, 0.15), ratio=(0.3, 3.3), value=0, inplace=True
+            p=0.2, scale=(0.02, 0.15), ratio=(0.3, 3.3), value=0, inplace=True
         ),
     ]
 
