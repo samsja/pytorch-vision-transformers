@@ -45,9 +45,9 @@ from vision_transformers.transformers.vit.vit_lightning import ViTModule
 ## PARAMS
 batch_size = 128
 num_workers = 8
-patience = 4
+patience = 10
 model_path = "data/models/conv_mixer"
-epochs = 100
+epochs = 250
 
 data = CIFARDataModule("data", batch_size, num_workers)
 
@@ -57,7 +57,15 @@ imshow(data.train_dataset[0][0])
 
 # ## Model
 
-model = ConvMixerModule(10, 1e-2)
+model = ConvMixerModule(
+    10,
+    0.1,
+    one_cycle_scheduler={
+        "max_lr": 0.5,
+        "steps_per_epoch": len(data.train_dataloader()),
+        "epochs": epochs,
+    },
+)
 
 # + [markdown] tags=[]
 #
@@ -65,13 +73,15 @@ model = ConvMixerModule(10, 1e-2)
 # -
 
 increase_image_shape = ProgressiveImageResizing(
-    data, epoch_final_size=15, n_step=15, init_size=5, final_size=30
+    data, epoch_final_size=30, n_step=30, init_size=5, final_size=30
 )
 
-increase_image_shape.epoch_to_change, increase_image_shape.new_size
+# +
+# increase_image_shape.epoch_to_change, increase_image_shape.new_size
+# -
 
 callbacks = [
-    EarlyStopping(monitor="val_acc", mode="max", patience=patience, strict=False),
+    EarlyStopping(monitor="val_loss", mode="min", patience=patience, strict=False),
     increase_image_shape,
 ]
 
@@ -86,3 +96,5 @@ trainer = pl.Trainer(
 )
 
 trainer.fit(model, data)
+
+trainer.test(model, data)

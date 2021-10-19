@@ -1,17 +1,23 @@
+from typing import Dict
+
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchmetrics
+from torch.optim.lr_scheduler import OneCycleLR
 
 
 class TransformersModule(pl.LightningModule):
-    def __init__(self, model: nn.Module, lr=1e-3):
+    def __init__(
+        self, model: nn.Module, lr=1e-3, one_cycle_scheduler: Dict[str, int] = None
+    ):
         super().__init__()
         self.model = model
         self.lr = lr
         self.loss_fn = torch.nn.CrossEntropyLoss()
         self.acc_fn = torchmetrics.Accuracy()
+        self.one_cycle_scheduler = one_cycle_scheduler
 
     def forward(self, x):
         return self.model(x)
@@ -45,4 +51,14 @@ class TransformersModule(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
-        return optimizer
+
+        if self.one_cycle_scheduler:
+            lr_scheduler = OneCycleLR(optimizer, **self.one_cycle_scheduler)
+            lr_scheduler_config = {
+                "optimizer": optimizer,
+                "scheduler": lr_scheduler,
+                "interval": "step",
+            }
+            return lr_scheduler_config
+        else:
+            return optimizer

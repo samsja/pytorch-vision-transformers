@@ -19,9 +19,5 @@ def TinyConvMixer(num_classes: int) -> ConvMixer:
 
 
 class ConvMixerModule(TransformersModule):
-    def __init__(self, num_classes: int, lr=1e-3):
-        super().__init__(TinyConvMixer(num_classes), lr)
-
-    def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.model.parameters(), lr=self.lr)
-        return optimizer
+    def __init__(self, num_classes, *argv, **karg):
+        super().__init__(TinyConvMixer(num_classes), *argv, **karg)

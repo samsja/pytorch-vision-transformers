@@ -42,19 +42,8 @@ from vision_transformers.transformers.vit.vit_lightning import ViTModule
 
 # ## Dataset
 
-data = CIFARDataModule("data", 10, 0)
+data = CIFARDataModule("data", 2, 0)
 
 data.setup()
 
 imshow(data.train_dataset[0][0])
-
-batch = torch.stack([data.train_dataset[0][0], data.train_dataset[1][0]])
-batch.shape
-
-model = ConvMixer(64, 1, 7, 4, 10)
-
-model(batch).shape
-
-for p in [1, 2, 3, 4]:
-    em = EmbeddingPatch(p, 256)
-    print(em(batch).shape)
