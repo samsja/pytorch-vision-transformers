@@ -22,7 +22,7 @@ import pytorch_lightning as pl
 # +
 import torch
 import torchvision
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 torch.__version__
@@ -33,12 +33,15 @@ import os
 os.chdir("..")
 # -
 
-from vision_transformers.datasets.cifar import CIFARDataModule, ProgressiveImageResizing
-from vision_transformers.datasets.utils.utils_plot import imshow
+from vision_transformers.data.cifar import CIFARDataModule
+from vision_transformers.data.utils.utils_plot import imshow
 from vision_transformers.transformers.conv_mixer.conv_mixer_lightning import (
     ConvMixerModule,
 )
 from vision_transformers.transformers.vit.vit_lightning import ViTModule
+from vision_transformers.utils import ProgressiveImageResizing
+
+# !ls
 
 # ## Dataset
 
@@ -59,11 +62,11 @@ imshow(data.train_dataset[0][0])
 
 model = ConvMixerModule(
     10,
-    0.1,
+    0.01,
     one_cycle_scheduler={
         "max_lr": 0.5,
         "steps_per_epoch": len(data.train_dataloader()),
-        "epochs": epochs,
+        "epochs": 60,
     },
 )
 
@@ -83,6 +86,7 @@ increase_image_shape = ProgressiveImageResizing(
 callbacks = [
     EarlyStopping(monitor="val_loss", mode="min", patience=patience, strict=False),
     increase_image_shape,
+    LearningRateMonitor(logging_interval="step"),
 ]
 
 trainer = pl.Trainer(
