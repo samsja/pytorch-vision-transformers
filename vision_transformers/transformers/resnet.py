@@ -19,5 +19,5 @@ class ResNet(torch.nn.Module):
 
 
 class ResNetModule(TransformersModule):
-    def __init__(self, num_classes: int, lr=1e-3):
-        super().__init__(ResNet(num_classes), lr)
+    def __init__(self, num_classes: int, lr=1e-3, pretrained=True):
+        super().__init__(ResNet(num_classes, pretrained), lr)
