@@ -6,23 +6,23 @@ authors = ["sami jaghouar <sami.jaghouar@hotmail.fr>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-torch = "^1.9.1"
-torchvision = "^0.10.1"
-einops = "^0.3.2"
-timm = "^0.4.12"
-pytorch-lightning = "^1.4.4"
+torch = "^1.11"
+torchvision = "^0.12"
+einops = "^0.4.1"
+timm = "^0.5.4"
+pytorch-lightning = "^1.6"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
-ipykernel = "^6.2.0"
-matplotlib = "^3.4.3"
-ipywidgets = "^7.6.3"
+pytest = "^7.1"
+ipykernel = "^6.13"
+matplotlib = "^3.5"
+ipywidgets = "^7.7"
 jupyterlab-code-formatter = "^1.4.10"
 xeus-python = "^0.12.5"
-black = "^21.8b0"
-isort = "^5.9.3"
-pre-commit = "^2.15.0"
-jupyterlab = "^3.1.12"
+black = "^22.3"
+isort = "^5.10"
+pre-commit = "^2.18"
+jupyterlab = "^3.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
